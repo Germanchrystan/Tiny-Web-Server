@@ -1,7 +1,10 @@
-#include "server.h"
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "server.h"
+
 #define DEFAULT_BUFFER_LEN 30000
+#define DEFAULT_HTML_PATH "page/index.html"
 
 struct Server server_constructor(
     int domain,
@@ -11,8 +14,7 @@ struct Server server_constructor(
     int port,
     int backlog,
     void (*launch)(struct Server *server),
-    char *path
-  )
+    char *path)
 {
   struct Server server;
 
@@ -29,11 +31,7 @@ struct Server server_constructor(
 
   server.launch = launch;
 
-  if (path != NULL) {
-    server.file_path = path;
-  } else {
-    server.file_path = "index.html";
-  }
+  server.file_path = path ? path : DEFAULT_HTML_PATH;
   server.buffer_len = DEFAULT_BUFFER_LEN;
 
   server.socket = socket(domain, service, protocol);
@@ -88,13 +86,8 @@ char *get_response(struct Server *server)
     exit(1);
   }
 
-   int response_len = snprintf(response, header_len + html_len + 1,
-        "HTTP/1.1 200 OK\r\n"
-        "Content-Type: text/html\r\n"
-        "Content-Length: %zu\r\n"
-        "\r\n"
-        "%.*s",
-        html_len, (int)html_len, html);
-  
+  int response_len = snprintf(response, header_len + html_len + 1,
+                              "%s%.*s",
+                              HTML_HEADER, (int)html_len, html);
   return response;
 }
