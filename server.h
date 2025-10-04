@@ -14,9 +14,14 @@ struct Server {
 
   struct sockaddr_in address;
 
+
   void (*launch)(struct Server* server);
+  char* (*get_response)(struct Server* server);
 
   int socket;
+
+  char* file_path;
+  int buffer_len;
 };
 
 struct Server server_constructor(
@@ -26,8 +31,10 @@ struct Server server_constructor(
   u_long interface,
   int port,
   int backlog,
-  void (*launch)(struct Server* server)
+  void (*launch)(struct Server* server),
+  char* path
 );
 
+char* get_response(struct Server* server);
 
 #endif /* Server_h */

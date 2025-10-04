@@ -3,16 +3,12 @@
 #include <unistd.h>
 #include "server.h" 
 #include <string.h>
-#define BUFFER_LEN 30000
 
 void launch(struct Server* server)
 {
-  char buffer[BUFFER_LEN];
-char *hello = "HTTP/1.1 200 OK\r\n"
-              "Content-Type: text/html\r\n"
-              "Content-Length: 70\r\n"
-              "\r\n"
-              "<!DOCTYPE html><html><body><h1>Hello, world!</h1></body></html>";  
+  char *response = get_response(server);
+  char buffer[server->buffer_len];
+
   printf("======= Server launched! =======\n");
   while(1) {
 
@@ -28,10 +24,10 @@ char *hello = "HTTP/1.1 200 OK\r\n"
       exit(1);
     }
 
-    read(new_socket, buffer, BUFFER_LEN);
+    read(new_socket, buffer, server->buffer_len);
     printf("%s\n", buffer);
     
-    write(new_socket, hello, strlen(hello));
+    write(new_socket, response, strlen(response));
     close(new_socket);
   }
 }
@@ -44,7 +40,8 @@ int main() {
     INADDR_ANY,
     8080,
     10,
-    launch
+    launch,
+    "index.html"
   );
 
   server.launch(&server);
